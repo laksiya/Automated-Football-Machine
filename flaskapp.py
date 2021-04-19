@@ -7,7 +7,11 @@ from flask import Flask, render_template, request
 from datetime import datetime
 
 app = Flask(__name__)
-
+@app.errorhandler(500)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('500.html'), 500
+app.register_error_handler(500, page_not_found)
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -24,11 +28,21 @@ def cakes_default():
 
 @app.route('/data/', methods = ['POST', 'GET'])
 def data():
+    print(request.form['speed'])
+    print(request.form['angle'])
+    d = request.form.to_dict()
+    print(d)
     if request.method == 'GET':
         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
     if request.method == 'POST':
         form_data = request.form
-        return render_template('data.html',form_data = form_data)
+        return render_template('data.html',form = form_data)
+
+@app.errorhandler(500)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('500.html'), 500
+
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')
