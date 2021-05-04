@@ -6,9 +6,7 @@ class Footballmachine:
     def __init__(self,address=0x80,baudrate=38400,port="/dev/ttyS0"):
         self.address = address
         self.rc = Roboclaw(port, baudrate)
-        ok= self.rc.Open()
-        #print(ok)
-        print("Is it OK?:", self.get_port())
+        self.rc.Open()
         version = self.rc.ReadVersion(self.address)
         if version[0]==False:
             print("GETVERSION Failed - check power supply and conections")
@@ -32,8 +30,7 @@ class Footballmachine:
         self.has_angle_motor_stopped_moving()
         self.rc.BackwardM1(self.address,0)
         self.rc.ResetEncoders(self.address)
-        print("Angle encoder:", self.rc.ReadEncM1(self.address)[1])
-        
+        print("Angle encoder:", self.rc.ReadEncM1(self.address)[1])      
 
     def displayspeed(self):
         enc1 = self.rc.ReadEncM1(self.address)
@@ -64,7 +61,6 @@ class Footballmachine:
         else:
             print("failed ")
 
-
     def speed_to_QPPS(self,speed):
         radius = 0.1
         encoder_pulses_per_rad = 1024/2
@@ -93,7 +89,7 @@ class Footballmachine:
 
     def set_speed_then_stop(self,speed):
         print("Set_speed: ",speed)
-        speed=speed_to_QPPS(int(speed))
+        speed=self.speed_to_QPPS(int(speed))
         self.rc.SpeedAccelM2(self.address,22000,speed)
         sleep(4)
         self.rc.SpeedAccelM2(self.address,22000,0)
@@ -113,6 +109,4 @@ class Footballmachine:
             self.displayspeed() 
             sleep(0.1)
 
-    def get_port(self):
-        return self.rc.get_port()
-        
+   
