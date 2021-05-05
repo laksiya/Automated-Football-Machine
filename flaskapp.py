@@ -18,27 +18,18 @@ app.register_error_handler(500, page_not_found)
 
 @app.route('/')
 def index():
-    fm.init_motors()
+    #fm.init_motors()
     return render_template('index.html')
 
-@app.route('/cakes/<name>')
-def cakes(name):
-    time = datetime.now()
-    return render_template('cakes.html', name=name, time=time)
 
-@app.route('/cakes')
-def cakes_default():
-    time = datetime.now()
-    return render_template('cakes.html', name="", time=time)
-
-@app.route('/data/', methods = ['POST', 'GET'])
+@app.route('/data', methods = ['POST', 'GET'])
 def data():
     print(request.form['speed'])
     print(request.form['angle'])
     if request.method == 'GET':
         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
     if request.method == 'POST':
-        fm.set_angle(int(request.form['angle']))
+        #fm.set_angle(int(request.form['angle']))
         fm.set_speed(int(request.form['speed']))
         fm.check_encoders(int(request.form['seconds']))
         fm.set_speed(0)

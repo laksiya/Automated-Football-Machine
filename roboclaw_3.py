@@ -1082,5 +1082,4 @@ class Roboclaw:
 			return 0
 		return 1
 
-	def get_port(self):
-		return self._port
+	
