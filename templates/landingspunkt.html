@@ -2,16 +2,18 @@
 <html>
     <body>
     <h1>Pro Trainer Soccer - Landingspunkt</h1>
+    <h3>Y is the direction of machine</h3>
     <form action="/data" method = "POST">
-        <p>How many ball shots?<input type = "text" name = "number_of_ballshots" /></p>
-        <p>Monitor speed for how long?<input type = "text" name = "seconds" /></p>
-        <p>Percentage spinn ball<input type = "text" name = "spin_ratio" /></p>
+        <p>Desired landingpoint[X,Y,Z]: <input type = "text" name = "number_of_ballshots" /></p>
         <p><input type="checkbox" name="maximize_balldelivery">Optimize ball delivery speed</p>
-        <p><input type = "submit" value = "submit" /></p>
+        <p><input type = "submit" value = "Shoot" /></p>
 
     </form>
     
-    <a href=manuell ><button class=grey >manuell</button></a>
+    <h3>Select another mode:</h3>
+    <a href=keeper ><button class=grey >Keepertrening</button></a>
+    <a href=manuell ><button class=grey >Manuell Styring</button></a></a>
+    <a href=calibrate ><button class=grey >Calibrate</button></a>
 
     </body>
 </html>
