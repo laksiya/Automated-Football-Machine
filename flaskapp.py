@@ -24,17 +24,30 @@ def index():
 
 @app.route('/data', methods = ['POST', 'GET'])
 def data():
-    print(request.form['speed'])
-    print(request.form['angle'])
     if request.method == 'GET':
         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
+
     if request.method == 'POST':
-        #fm.set_angle(int(request.form['angle']))
-        fm.set_speed(int(request.form['speed']))
-        fm.check_encoders(int(request.form['seconds']))
-        fm.set_speed(0)
-        form_data = request.form
-        return render_template('data.html',form= form_data)
+        if request.form['submit_button'] == 'Shoot':
+            #fm.set_angle(int(request.form['angle']))
+            fm.set_speed(int(request.form['speed']))
+            fm.check_encoders(int(request.form['seconds']))
+            fm.set_speed(0)
+            form_data = request.form
+            return render_template('data.html',form= form_data)
+
+        elif request.form['submit_button'] == 'Calibrate with Test Shot':
+            #fm.set_angle(int(request.form['angle']))
+            set_speed,c1,c2,minM1,minM2 = fm.calibrate_motors_encoder(int(request.form['speed']))
+            form_data = request.form.copy()
+            form_data.add('motor constant M1', c1)
+            form_data.add('motor constant M2', c2)
+            form_data.add('expected encoder speed', set_speed)
+            form_data.add('motor lowest speed M1', minM1)
+            form_data.add('motor lowest speed M2', minM2)
+            return render_template('data.html',form= form_data)
+        
+        
 
 if __name__ == '__main__':
  app.run(debug=False, host='0.0.0.0') 
