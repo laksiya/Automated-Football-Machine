@@ -1,7 +1,10 @@
+<h1>Ballshot data:</h1>
 {% for key,value in form.items() %}
 <h2> {{key}}</h2>
 <p> {{value}}</p>
 {% endfor %}
-<form action="/" method = "GET">
-    <p><input type = "submit" value = "New shot" /></p>
-</form>
+
+<h3>Continue by selecting a mode:</h3>
+    <a href=keeper ><button class=grey >Keepertrening</button></a>
+    <a href=manuell ><button class=grey >Manuell styring</button></a>
+    <a href=landing ><button class=grey >Landingsbasert</button></a>

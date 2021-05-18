@@ -4,21 +4,20 @@
     <h1>Pro Trainer Soccer </h1>
     <p>Welcome to the GUI of controlling the automated Pro Soccer Trainer.</p>
     <h3>Test Shot</h3>
-    <p>Start by calibrating the system. Click test shot to shoot one ball at 45 degrees with 10m/s. Film and measure where the ball landed.</p>
-    <form action="/data" method = "POST">
-    <p>Test shot speed: <input type = "text" name = "calibrate_length" /></p>
-    <p>Test shot angle: <input type = "text" name = "calibrate_length" /></p>
+    <p>Start by calibrating the system. Select an angle and speed to calibrate(e.g. 10m/s and 45 degrees). Film and measure where the ball landed.</p>
+    <form action="/" method = "POST">
+    <p>Test shot speed: <input type = "text" name = "speed" /></p>
+    <p>Test shot angle: <input type = "text" name = "angle" /></p>
     <p><input type = "submit" name="test_shot" value = "Test shot" /></p>
-      <p><input type = "submit" name="test_shot_1045" value = "Test shot with 10m/s and 45 degree" /></p>
- 
+    </form>
     <h3>Calibrate</h3>
     <p>How far did the ball travel ?</p>
-    <p> <input type = "text" name = "calibrate_length" /></p>
-    <p><input type = "submit" value = "Calibrate" /></p>
-      
+    <form action="/calibrationdone" method = "POST">
+    </form><p><input type = "text" name = "calibrate_length" /></p>
+    <p><input type = "submit" name="calibrate" value = "Calibrate" /></p>
     </form>
     
-    <h3>Start by selecting a mode:</h3>
+    <h3>Start without calibration by selecting a mode:</h3>
 
     <a href=keeper ><button class=grey >Keepertrening</button></a>
     <a href=manuell ><button class=grey >Manuell styring</button></a>
