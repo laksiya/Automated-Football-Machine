@@ -1,19 +1,21 @@
-
 <html>
-    <body>
+<head>
+<link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/mainpage.css')}}">
+</head>
+<body>
     <h1>Pro Trainer Soccer - Landingspunkt</h1>
     <h3>Y is the direction of machine</h3>
     <form action="/data" method = "POST">
         <p>Desired landingpoint[X,Y,Z]: <input type = "text" name = "number_of_ballshots" /></p>
         <p><input type="checkbox" name="maximize_balldelivery">Optimize ball delivery speed</p>
-        <p><input type = "submit" value = "Shoot" /></p>
+        <p><input type = "submit" name= "submit_button" value = "Shoot landingball" /></p>
 
     </form>
     
     <h3>Select another mode:</h3>
-    <a href=keeper ><button class=grey >Keepertrening</button></a>
-    <a href=manuell ><button class=grey >Manuell Styring</button></a></a>
-    <a href=calibrate ><button class=grey >Calibrate</button></a>
+    <a href=keeper ><button class=button1 >Keepertrening</button></a>
+    <a href=manuell ><button class=button1 >Manuell Styring</button></a></a>
+    <a href=calib1 ><button class=button1 >Calibrate</button></a>
 
     </body>
 </html>

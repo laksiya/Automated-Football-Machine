@@ -1,0 +1,19 @@
+<html>
+<head>
+<link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/mainpage.css')}}">
+</head>
+    <body>
+    <h1>Pro Trainer Soccer - Calibration </h1>
+    <h3>#1 Test Shot</h3>
+    <p>Select an angle and speed to calibrate(e.g. 10m/s and 45 degrees). Film and measure where the ball landed.</p>
+    <form action="/calib2" method = "POST">
+    <p>Test shot speed: <input type = "text" name = "speed" /></p>
+    <p>Test shot angle: <input type = "text" name = "angle" /></p>
+    {% if feedback %}
+    <p class="warning">{{ feedback }}</p>
+    {% endif %}
+    <p><input class = "submit" type = "submit" name="submit_button" value = "Test shot" /></p>
+    </form>
+    <a href=./ ><button >Return</button></a>
+    </body>
+</html>

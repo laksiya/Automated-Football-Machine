@@ -1,0 +1,50 @@
+body {
+    background-color: lightblue;
+}
+  
+h1 {
+    color: navy;
+    font-family:Arial, Helvetica, sans-serif;
+}
+h2 {
+    font-family:Arial, Helvetica, sans-serif;
+}
+h3 {
+    font-family:Arial, Helvetica, sans-serif;
+}
+p {
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.button1 {
+    background-color: rgb(232, 249, 255);
+    width: 100%;
+    padding: 12px 28px;
+    border-radius: 4px;
+    margin: 7px 2px;
+    border: 2px solid #000000; /* Green */
+    display: block;
+    opacity: 0.8;
+    
+}
+
+.sumbit {
+    background-color: rgb(232, 249, 255);
+    width: 100px;
+    padding: 12px 28px;
+    border-radius: 4px;
+    margin: 4px;
+    border: 2px solid #000000; /* Green */
+    display: block;
+    opacity: 0.8;
+    
+}
+
+
+.button1:hover {
+    opacity: 1.0;
+}
+
+.warning{
+    color: rgb(196, 0, 0);
+}

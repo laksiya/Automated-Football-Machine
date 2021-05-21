@@ -10,7 +10,7 @@ class Footballmachine:
         version = self.rc.ReadVersion(self.address)
         if version[0]==False:
             print("GETVERSION Failed - check power supply and conections")
-            return
+            #return
         else:
             print(repr(version[1]))
         self.M1speedconst=1.0
@@ -152,3 +152,4 @@ class Footballmachine:
     def calibrate_motors_matlab(setspeed,realspeed):
         self.M1speedconst=setspeed/realspeed
         self.M2speedconst=setspeed/realspeed 
+        return self.M1speedconst,self.M2speedconst

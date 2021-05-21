@@ -1,27 +1,15 @@
-
 <html>
-    <body>
-    <h1>Pro Trainer Soccer </h1>
-    <p>Welcome to the GUI of controlling the automated Pro Soccer Trainer.</p>
-    <h3>Test Shot</h3>
-    <p>Start by calibrating the system. Select an angle and speed to calibrate(e.g. 10m/s and 45 degrees). Film and measure where the ball landed.</p>
-    <form action="/" method = "POST">
-    <p>Test shot speed: <input type = "text" name = "speed" /></p>
-    <p>Test shot angle: <input type = "text" name = "angle" /></p>
-    <p><input type = "submit" name="test_shot" value = "Test shot" /></p>
-    </form>
-    <h3>Calibrate</h3>
-    <p>How far did the ball travel ?</p>
-    <form action="/calibrationdone" method = "POST">
-    </form><p><input type = "text" name = "calibrate_length" /></p>
-    <p><input type = "submit" name="calibrate" value = "Calibrate" /></p>
-    </form>
-    
-    <h3>Start without calibration by selecting a mode:</h3>
-
-    <a href=keeper ><button class=grey >Keepertrening</button></a>
-    <a href=manuell ><button class=grey >Manuell styring</button></a>
-    <a href=landing ><button class=grey >Landingsbasert</button></a>
-      
-    </body>
+<head>
+<link rel= "stylesheet" type= "text/css" href= "{{url_for('static',filename='styles/mainpage.css')}}">
+</head>
+<body>
+<h1>Pro Trainer Soccer</h1>
+<p>Welcome to the GUI of controlling the automated Pro Soccer Trainer.</p>
+<h3>To start with calibrating the system:</h3>
+<a href=calib1 ><button class=button1 >Calibrate</button></a>
+<h3>Start without calibration by selecting a mode:</h3>
+<a href=keeper ><button class=button1 >Keepertrening</button></a>
+<a href=manuell ><button class=button1 >Manuell styring</button></a>
+<a href=landing ><button class=button1 >Landingsbasert</button></a>
+</body>
 </html>
