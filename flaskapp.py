@@ -71,12 +71,16 @@ def calib2():
                 angle=int(request.form["angle"])
                 dispenser_speed=int(request.form["dispenser_speed"])
                 fm.manuell_shot(speed,angle,dispenser_speed)
-                sleep(10)
+                minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
                 fm.manuell_shot_done()
+                ball_data["MinSpeedM1"]=minSpeedM1
+                ball_data["MinSpeedM2"]=minSpeedM2
                 ball_data["Speed"]=int(request.form["speed"])
                 ball_data["Angle"]=int(request.form["angle"])
                 ball_data["Dispenser Speed"]=int(request.form["dispenser_speed"])
                 return render_template('calib2.html')
+
+                
 @app.route('/calibrationdone')
 def calibrationdone():
     if request.method == 'GET':
@@ -117,14 +121,16 @@ def calibrationdone():
                     
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('calib2.html',feedback=feedback)
             if not target_valid:
                 feedback = f"{request.form['target']} is not a valid target. Enter a positive target within 30m radius inf this format: X,Y,Z."
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('calib2.html',feedback=feedback)
             else:
                 target=[int(target_list[0]),int(target_list[1]),int(target_list[2])]
-                m1const,m2const =
-
+                m1const,m2const =fm.calibrate_motor_constants(target,ball_data["Speed"],ball_data["Angle"],ball_data["MinSpeedM1"],ball_data["MinSpeedM2"])
+                ball_data["M1const"]=m1const
+                ball_data["M2const"]=m2const
+                return render_template('calibrationdone.html',form=ball_data)
 
 
 @app.route('/landing')

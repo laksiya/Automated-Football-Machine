@@ -179,12 +179,12 @@ class Footballmachine:
         self.M2speedconst=setspeed/realspeed 
         return self.M2speedconst
         
-    def check_lowest_speeds(self):
+    def check_lowest_speeds(self,seconds):
         minspeedM1= np.Inf
         minspeedM2= np.Inf
         print("Wait two seconds before sending the ball. Film and measure landing position")
         sleep(2)
-        for i in range(0,100):
+        for i in range(0,seconds/10):
             speed1 = self.rc.ReadSpeedM1(self.address[0])
             speed2 = self.rc.ReadSpeedM2(self.address[0])
             if(speed1[0]):
@@ -194,6 +194,12 @@ class Footballmachine:
             sleep(0.1)
         return self._QPPS_to_speed(minspeedM1), self._QPPS_to_speed(minspeedM2)
     
+    def calibrate_motor_constants(self,landingpoint,set_speed,set_angle,minspeedM1,minspeedM2):
+        real_speed = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle)
+        self.M1speedconst=minspeedM1/real_speed
+        self.M2speedconst=minspeedM2/real_speed
+        return  self.M1speedconst, self.M2speedconst
+
     def _manuell_shot(self,speed,angle,dispenser_speed):
         
         print("Set_angle: ",angle)
@@ -251,6 +257,8 @@ class Footballmachine:
         t0.start()
         t0.join()
 
+
+
     def landing_shot(self,target,dispenser_speed):
         
         speed,angle,spin,tf= self.optim.find_initvalues_spin(target)
@@ -274,14 +282,4 @@ class Footballmachine:
         self.rc.SpeedAccelM1(self.address[0],14000,speedm2)
         self.rc.ForwardM2(self.address[1],dispenser_speed)
         return speed,angle,spin
-
-    def manuell_shot_done(self):
-
-        self.rc.SpeedAccelM2(self.address[0],14000,0)
-        self.rc.SpeedAccelM1(self.address[0],14000,0)
-        self.rc.ForwardM2(self.address[1],0)
-
-        t0 = Thread(target=self.rc.SpeedAccelDeccelPositionM1,args=(self.address[1],10,10,10,0,0))
-        t0.start()
-        t0.join()
 
