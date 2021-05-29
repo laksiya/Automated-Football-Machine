@@ -10,6 +10,9 @@
     <form action="/calibrationdone" method = "POST">
     <p>X: <input type = "text" name = "X"/></p>
     <p>Y: <input type = "text" name = "Y"/></p>
+    {% if feedback %}
+    <p class="warning">{{ feedback }}</p>
+    {% endif %}
     <p><input type = "submit" name="submit_button" class = "submit" value= "Calibrate"/></p>
     </form>
     <a href=./ ><button >Return</button></a>

@@ -9,6 +9,7 @@
     <form action="/calib2" method = "POST">
     <p>Test shot speed: <input type = "text" name = "speed" /></p>
     <p>Test shot angle: <input type = "text" name = "angle" /></p>
+    <p>Ball dispenser speed (range 1-126): <input type = "text" name = "dispenser_speed" /></p>
     {% if feedback %}
     <p class="warning">{{ feedback }}</p>
     {% endif %}
