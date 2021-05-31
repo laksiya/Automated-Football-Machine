@@ -9,6 +9,7 @@ class Footballmachine:
         self.address = address
         self.rc = Roboclaw(port, baudrate)
         self.rc.Open()
+        self.spin_constant=100
         self.M1speedconst=1.0
         self.M2speedconst=1.0
         self.optim=Optimizer()
@@ -43,7 +44,7 @@ class Footballmachine:
         
         
     def _speed_to_QPPS(self,speed,spin=0):
-        angular_speed=speed/(0.1*2*np.pi)+spin*100
+        angular_speed=speed/(0.1*2*np.pi)+self.spin_constant*spin
         QPPS=int(round(angular_speed*4000))
         return QPPS 
 
@@ -124,13 +125,11 @@ class Footballmachine:
         t0.join()
         print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1])
 
-
         speedm2=int(self._speed_to_QPPS(speed,-spin)*self.M2speedconst)
         speedm1=int(self._speed_to_QPPS(speed,spin)*self.M1speedconst)
         self.rc.SpeedAccelM2(self.address[0],14000,int(speedm1))
         self.rc.SpeedAccelM1(self.address[0],14000,int(speedm2))
         self.rc.ForwardM2(self.address[1],dispenser_speed)
-
 
     def manuell_shot_done(self):
         self.rc.SpeedAccelM2(self.address[0],14000,0)
@@ -154,23 +153,21 @@ class Footballmachine:
         t0.join()
         print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1])
         sleep(7)
-        #spin er gitt i radianer per sekund
-        
-        speed=self._speed_to_QPPS(int(speed))       
-        speedM1=int((speed/(0.1*np.pi)-(spin/np.pi))*self.M2speedconst)
-        speedM2=int((speed/(0.1*np.pi)+(spin/np.pi))*self.M1speedconst)
-
+     
+        if target[0]==0:
+            speedM2=int(self._speed_to_QPPS(speed)*self.M2speedconst)
+            speedM1=int(self._speed_to_QPPS(speed)*self.M1speedconst)
+        else:
+            speedM2=int(self._speed_to_QPPS(speed,-spin)*self.M2speedconst)
+            speedM1=int(self._speed_to_QPPS(speed,spin)*self.M1speedconst)
 
         self.rc.SpeedAccelM2(self.address[0],14000,speedM1)
         self.rc.SpeedAccelM1(self.address[0],14000,speedM2)
         self.rc.ForwardM2(self.address[1],dispenser_speed)
         return speed,angle,spin
 
-    def test_spin(self,spin,speed):
-        speedM1=self._speed_to_QPPS(speed,-spin)   
-        speedM2=self._speed_to_QPPS(speed,spin)
-         
-        print(speedM1,speedM2)
+    def tune_spin_constant(self, value):
+        self.spin_constant=self.spin_constant+value
 
 fm = Footballmachine()
 fm.test_spin(0.018,27)

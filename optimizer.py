@@ -131,7 +131,6 @@ class Optimizer:
         return float(sol_speed)  
 
     def ballpathfunction(self,t,y):
-        #y_0=[x_0,y_0,z_0,dx_0,dy_0,dz_0;v_0;omega_0;lambda;gamma;k_d;k_l;k_w];
         g=9.81
         ydot=np.zeros(8)
         ydot[0]=y[3] 
@@ -142,25 +141,9 @@ class Optimizer:
         ydot[5]=(self.k_l*y[7]*(np.sin(self.lambd)*np.cos(self.gamma)*y[4]-np.sin(self.lambd)*np.sin(self.gamma)*y[3])-self.k_d*y[6]*y[5]-g) 
         ydot[6]=(self.k_l*y[7]*((np.sin(self.lambd)*np.sin(self.gamma)*y[5]-np.cos(self.lambd)*y[4])+(np.sin(self.lambd)*np.cos(self.gamma)*y[5]-np.cos(self.lambd)*y[3])+(np.sin(self.lambd)*np.cos(self.gamma)*y[4]-np.sin(self.lambd)*np.sin(self.gamma)*y[3]))/(y[6]) -self.k_d*(y[3]+y[4]+y[5])) 
         ydot[7]=(-self.k_w*y[7]*y[7]) 
-
-        # ydot=np.zeros(13)
-        # ydot[0]=y[3]
-        # ydot[1]=y[4]
-        # ydot[2]=y[5]
-        # ydot[3]=y[11]*y[7]*(np.sin(y[8])*np.sin(y[9])*y[5]-np.cos(y[8])*y[4])-y[10]*y[6]*y[3]
-        # ydot[4]=y[11]*y[7]*(np.sin(y[8])*np.cos(y[9])*y[5]-np.cos(y[8])*y[3])-y[10]*y[6]*y[4]
-        # ydot[5]=y[11]*y[7]*(np.sin(y[8])*np.cos(y[9])*y[4]-np.sin(y[8])*np.sin(y[9])*y[3])-y[10]*y[6]*y[5]-g
-        # ydot[6]=y[11]*y[7]*((np.sin(y[8])*np.sin(y[9])*y[5]-np.cos(y[8])*y[4])+(np.sin(y[8])*np.cos(y[9])*y[5]-np.cos(y[8])*y[3])+(np.sin(y[8])*np.cos(y[9])*y[4]-np.sin(y[8])*np.sin(y[9])*y[3]))/y[6] -y[10]*(y[3]+y[4]+y[5])
-        # ydot[7]=-y[12]*y[7]*y[7]
-        # ydot[8]=0
-        # ydot[9]=0
-        # ydot[10]=0
-        # ydot[11]=0
-        # ydot[12]=0
         return ydot
     
     def aboveground(self,path):
-        #filter path to only contain points z>0
         m=np.size(path,0)
         n=np.size(path,1)
         pathabove=np.zeros((m,n))
@@ -175,7 +158,6 @@ class Optimizer:
         return pathabove
 
     def above_z(self,path,z):
-        #filter path to only contain points z>0
         peak=0
         m=np.size(path,0)
         n=np.size(path,1)
@@ -197,7 +179,6 @@ class Optimizer:
         t0, t1 = 0, 10  
         t = np.linspace(t0, t1, 10000) 
 
-
         y_sol = np.zeros((len(t), len(y_0))) 
         y_sol[0, :] = y_0
 
@@ -215,8 +196,6 @@ class Optimizer:
         dy_0=x[0]*np.cos(x[1])*np.cos(self.theta)
         dz_0=x[0]*np.sin(x[1])
         y_0 = [0,0.1,0.1,dx_0,dy_0,dz_0,x[0],x[2]]
-        #y_0 = [0,0.1,0.1,dx_0,dy_0,dz_0,x[0],x[2]]
-        #y_0=[startpoint[0],startpoint[1],startpoint[2],dx_0,dy_0,dz_0,v_0,omega_0,lambda_0,gamma,k_d,k_l,k_w]
         return y_0
 
     def plot_path(self,speed,angle,spin):
