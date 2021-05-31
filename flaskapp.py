@@ -156,6 +156,7 @@ def data():
             missing_values =list() 
             speed_valid =1
             angle_valid =1
+            spin_valid = 1
             dispenser_valid =1
             feedback = ""
             req = request.form
@@ -169,6 +170,8 @@ def data():
                         speed_valid=valid_speed(int(request.form['speed']))
                     if (k=="dispenser_speed"): 
                         dispenser_valid=valid_dispenser_speed(int(request.form['dispenser_speed']))
+                    if (k=="spin"): 
+                        spin_valid=valid_spin(int(request.form['spin']))
                     
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
@@ -181,6 +184,9 @@ def data():
                 return render_template('manuell.html',feedback=feedback)
             if not dispenser_valid:
                 feedback = f"{request.form['dispenser_speed']} is not a valid dispenser speed. Enter a valid dispenserspeed within range 1-126 degrees"
+                return render_template('manuell.html',feedback=feedback)
+            if not dispenser_valid:
+                feedback = f"{request.form['spin']} is not a valid spin. Enter a valid dispenserspeed within range -0.018-0.018 degrees"
                 return render_template('manuell.html',feedback=feedback)
             else:
                 speed=int(request.form["speed"])
@@ -257,9 +263,5 @@ def valid_angle(angle):
     return (angle>=0 and angle<=45)
 def valid_dispenser_speed(dispenser_speed):
     return (dispenser_speed>=1 and dispenser_speed<=126)
-
-def mock_get_optim_values(X,Y,Z,spin=False):
-    return 10,45*np.pi/180,0
-
-def mock_calculate_real_speed(X,Y,Z,speed,angle):
-    return speed-0.3
+def valid_spin(spin):
+    return (spin>=-0.018 and spin<=0.018)
