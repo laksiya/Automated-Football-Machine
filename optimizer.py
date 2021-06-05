@@ -144,7 +144,6 @@ class Optimizer:
         return ydot
     
     def aboveground(self,path):
-        #filter path to only contain points z>0
         m=np.size(path,0)
         n=np.size(path,1)
         pathabove=np.zeros((m,n))
@@ -159,7 +158,6 @@ class Optimizer:
         return pathabove
 
     def above_z(self,path,z):
-        #filter path to only contain points z>0
         peak=0
         m=np.size(path,0)
         n=np.size(path,1)
@@ -180,7 +178,6 @@ class Optimizer:
     def Simulate_ballpath(self,y_0):
         t0, t1 = 0, 10  
         t = np.linspace(t0, t1, 10000) 
-
 
         y_sol = np.zeros((len(t), len(y_0))) 
         y_sol[0, :] = y_0

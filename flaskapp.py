@@ -242,7 +242,7 @@ def data():
                 speed=float(request.form["speed"])
                 angle=float(request.form["angle"])
                 dispenser_speed=int(request.form["dispenser_speed"])
-                spin =float(request.form["spin"])
+                spin=float(request.form["spin"])
                 fm.manuell_shot(speed,angle,spin,dispenser_speed)
                 sleep(10)
                 fm.shot_done()
