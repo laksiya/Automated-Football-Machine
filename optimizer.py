@@ -75,12 +75,11 @@ class Optimizer:
         sol_angle= sol['x'][1]
         sol_spin = sol['x'][2]
         sol_tf = sol['x'][3]
-        #print("Landed on: ", X_end)
         solution = [float(sol_speed),float(sol_angle)*180/np.pi,float(sol_spin),float(sol_tf)]
         print("The optimal solution for speed, angle, spin, tf is:", solution)
         return float(sol_speed),float(sol_angle),float(sol_spin),float(sol_tf)
 
-    def calculate_real_speed(self,landingpoint, setspeed, angle, spin, tf):
+    def calculate_real_speed(self,landingpoint, setspeed, angle, spin=0, tf=0):
         self.target=landingpoint
         print("Desired target: ", landingpoint)
 
@@ -93,8 +92,8 @@ class Optimizer:
         # Initial state
         U0 = MX.sym('U0',4)
         w = [U0]
-        lbw = [1,5*np.pi/180,-1,0]
-        ubw = [27,45*np.pi/180,1,np.inf]
+        lbw = [1,angle*np.pi/180,-spin,0]
+        ubw = [27,angle*np.pi/180,spin,np.inf]
         w0 = [setspeed,angle*np.pi/180,spin,tf]
 
         #How to define terminal constraints and Mayer costfunction?
@@ -126,12 +125,12 @@ class Optimizer:
         solver = nlpsol('solver', 'ipopt', prob,opts)
         sol = solver(x0=w0, lbx=lbw, ubx=ubw, lbg=lbg, ubg=ubg)
         sol_speed = sol['x'][0]
+        sol_spin = sol['x'][2]
         print("Machine was set to(setspeed, angle, spin, tf):", [setspeed, angle, spin, tf])
-        print("Real speed based on actual landingpoint is:", float(sol_speed))
-        return float(sol_speed)  
+        print("Real speed based on actual landingpoint and the given angle is:", float(sol_speed))
+        return float(sol_speed), float(sol_spin)   
 
     def ballpathfunction(self,t,y):
-        #y_0=[x_0,y_0,z_0,dx_0,dy_0,dz_0;v_0;omega_0;lambda;gamma;k_d;k_l;k_w];
         g=9.81
         ydot=np.zeros(8)
         ydot[0]=y[3] 
@@ -142,21 +141,6 @@ class Optimizer:
         ydot[5]=(self.k_l*y[7]*(np.sin(self.lambd)*np.cos(self.gamma)*y[4]-np.sin(self.lambd)*np.sin(self.gamma)*y[3])-self.k_d*y[6]*y[5]-g) 
         ydot[6]=(self.k_l*y[7]*((np.sin(self.lambd)*np.sin(self.gamma)*y[5]-np.cos(self.lambd)*y[4])+(np.sin(self.lambd)*np.cos(self.gamma)*y[5]-np.cos(self.lambd)*y[3])+(np.sin(self.lambd)*np.cos(self.gamma)*y[4]-np.sin(self.lambd)*np.sin(self.gamma)*y[3]))/(y[6]) -self.k_d*(y[3]+y[4]+y[5])) 
         ydot[7]=(-self.k_w*y[7]*y[7]) 
-
-        # ydot=np.zeros(13)
-        # ydot[0]=y[3]
-        # ydot[1]=y[4]
-        # ydot[2]=y[5]
-        # ydot[3]=y[11]*y[7]*(np.sin(y[8])*np.sin(y[9])*y[5]-np.cos(y[8])*y[4])-y[10]*y[6]*y[3]
-        # ydot[4]=y[11]*y[7]*(np.sin(y[8])*np.cos(y[9])*y[5]-np.cos(y[8])*y[3])-y[10]*y[6]*y[4]
-        # ydot[5]=y[11]*y[7]*(np.sin(y[8])*np.cos(y[9])*y[4]-np.sin(y[8])*np.sin(y[9])*y[3])-y[10]*y[6]*y[5]-g
-        # ydot[6]=y[11]*y[7]*((np.sin(y[8])*np.sin(y[9])*y[5]-np.cos(y[8])*y[4])+(np.sin(y[8])*np.cos(y[9])*y[5]-np.cos(y[8])*y[3])+(np.sin(y[8])*np.cos(y[9])*y[4]-np.sin(y[8])*np.sin(y[9])*y[3]))/y[6] -y[10]*(y[3]+y[4]+y[5])
-        # ydot[7]=-y[12]*y[7]*y[7]
-        # ydot[8]=0
-        # ydot[9]=0
-        # ydot[10]=0
-        # ydot[11]=0
-        # ydot[12]=0
         return ydot
     
     def aboveground(self,path):
@@ -215,8 +199,6 @@ class Optimizer:
         dy_0=x[0]*np.cos(x[1])*np.cos(self.theta)
         dz_0=x[0]*np.sin(x[1])
         y_0 = [0,0.1,0.1,dx_0,dy_0,dz_0,x[0],x[2]]
-        #y_0 = [0,0.1,0.1,dx_0,dy_0,dz_0,x[0],x[2]]
-        #y_0=[startpoint[0],startpoint[1],startpoint[2],dx_0,dy_0,dz_0,v_0,omega_0,lambda_0,gamma,k_d,k_l,k_w]
         return y_0
 
     def plot_path(self,speed,angle,spin):

@@ -9,97 +9,81 @@ class Footballmachine:
         self.address = address
         self.rc = Roboclaw(port, baudrate)
         self.rc.Open()
+        self.spin_constant = 1.0
         self.M1speedconst=1.0
         self.M2speedconst=1.0
         self.optim=Optimizer()
 
     def has_angle_motor_stopped_moving(self):
         interval = 0.1
-        first = self.rc.ReadEncM1(self.address[1])
+        first = self.rc.ReadEncM1(self.address[1])[1]
         sleep(interval)
-        second = self.rc.ReadEncM1(self.address[1])
+        second = self.rc.ReadEncM1(self.address[1])[1]
         print(f"first: {first}, second: {second}")
-        while(first!=second): 
-            first = self.rc.ReadEncM1(self.address[1])
-            sleep(interval)
-            second = self.rc.ReadEncM1(self.address[1])
+        if first == second: return True
+        else:
+            while(first!=second): 
+                first = self.rc.ReadEncM1(self.address[1])[1]
+                sleep(interval)
+                second = self.rc.ReadEncM1(self.address[1])[1]
+            return True
 
     def init_motors(self):
         for address in self.address:
             version = self.rc.ReadVersion(address)
             if version[0]==False:
                 print(f"GETVERSION Failed - check power supply and conections on address {address}")
-                #return
             else:
                 print(repr(version[1]))
 
         print("Initializing all motors...")
+        self.rc.SpeedAccelM2(self.address[0],84000,0)
+        self.rc.SpeedAccelM1(self.address[0],84000,0)
+        self.rc.ForwardM2(self.address[1],0)
         backward_speed = 126 #range: 0-126
         self.rc.BackwardM1(self.address[1],backward_speed)
         self.has_angle_motor_stopped_moving()
         self.rc.BackwardM1(self.address[1],0)
         self.rc.ResetEncoders(self.address[1])
+        
         print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1])      
         
         
     def _speed_to_QPPS(self,speed,spin=0):
-        angular_speed=speed/(0.1*2*np.pi)+spin*100
-        QPPS=int(round(angular_speed*4000))
-        return QPPS 
+        radius = 0.1
+        encoder_pulses_per_rad = 1024*(180/3.14)/360
+        angular_speed1=speed/radius*3.95*1.0-spin*1000*1.0
+        angular_speed2=speed/radius*3.95*1.0+spin*1000*1.0
+        print(angular_speed1,angular_speed2)
+        QPPS1= encoder_pulses_per_rad*angular_speed1
+        QPPS2= encoder_pulses_per_rad*angular_speed2
+        print(QPPS1,QPPS2)
+        if QPPS1>184879: QPPS1=184879
+        if QPPS2>178401: QPPS2=178401
+        return round(QPPS1), round(QPPS2)
 
-    def _QPPS_to_speed(self,QPPS):
-        speed = QPPS/4000*(0.1*2*np.pi)
-        return speed
+    def _QPPS_to_speed(self,QPPS1,QPPS2):
+        speed1 = QPPS1/(4000*self.M1speedconst)*(0.1*2*np.pi)
+        speed2 = QPPS2/(4000*self.M2speedconst)*(0.1*2*np.pi)
+        return speed1,speed2
 
     def _angle_to_QP(self,angle):
         range_min=0
         range_max=221
         angle_min=0
         angle_max=45
-        a1=int(angle) - angle_min
+        a1=angle - angle_min
         a2=range_max - range_min
         a3=angle_max - angle_min
         angle = int((a1 *a2)/a3 + range_min)
         return angle
-
-    def check_speed(self,seconds):
-        for i in range(0,seconds):
-            print(("{} # ".format(i)), end=' ')
-            enc1 = self.rc.ReadEncM1(self.address[0])
-            enc2 = self.rc.ReadEncM2(self.address[0])
-            speed1 = self.rc.ReadSpeedM1(self.address[0])
-            speed2 = self.rc.ReadSpeedM2(self.address[0])
-
-            print(("Encoder1:"), end=' ')
-            if(enc1[0]==1):
-                print(enc1[1], end=' ')
-                print(format(enc1[2],'02x'), end=' ')
-            else:
-                print("failed", end=' ')
-            print("Encoder2:", end=' ')
-            if(enc2[0]==1):
-                print(enc2[1], end=' ')
-                print(format(enc2[2],'02x'), end=' ')
-            else:
-                print("failed ", end=' ')
-            print("Speed1:", end=' ')
-            if(speed1[0]):
-                print(speed1[1], end=' ')
-            else:
-                print("failed", end=' ')
-            print(("Speed2:"), end=' ')
-            if(speed2[0]):
-                print(speed2[1])
-            else:
-                print("failed ")
-            sleep(0.1)
         
     def check_lowest_speeds(self,seconds):
         minspeedM1= np.Inf
         minspeedM2= np.Inf
         print("Wait two seconds before sending the ball. Film and measure landing position")
         sleep(2)
-        for _ in range(0,seconds/10):
+        for _ in range(0,int(seconds*10)):
             speed1 = self.rc.ReadSpeedM1(self.address[0])
             speed2 = self.rc.ReadSpeedM2(self.address[0])
             if(speed1[0]):
@@ -107,70 +91,83 @@ class Footballmachine:
             if(speed2[0]):
                 if speed2[1]<minspeedM2: minspeedM2= speed2[1]
             sleep(0.1)
-        return self._QPPS_to_speed(minspeedM1), self._QPPS_to_speed(minspeedM2)
-    
-    def calibrate_motor_constants(self,landingpoint,set_speed,set_angle,spin, tf,minspeedM1,minspeedM2):
-        real_speed = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
-        self.M1speedconst=minspeedM1/real_speed
-        self.M2speedconst=minspeedM2/real_speed
-        return  self.M1speedconst, self.M2speedconst
+        return minspeedM1,minspeedM2
 
-    def manuell_shot(self,speed,angle,spin,dispenser_speed):
+    def _calculate_spin(QPPS1,QPPS2,speed,spin):
+        print(QPPS1,QPPS2)
+        radius = 0.1
+        encoder_pulses_per_rad = 1024*(180/3.14)/360
+        angular_speed1=QPPS1/encoder_pulses_per_rad
+        angular_speed2=QPPS2/encoder_pulses_per_rad
+        print(angular_speed1,angular_speed2)
+        real_spin=((angular_speed2-speed/radius*3.95*1.0)-(angular_speed1-speed/radius*3.95*1.0))/(2*1000*1.0)
+        print(real_spin)
+        return real_spin
+
+    def calibrate_motor_constants(self,landingpoint,flag,set_speed,set_angle,spin=0,speedM1=0,speedM2=0, tf=0):
+        real_speed, real_spin = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
+        if flag:
+            if spin!=0: self.spin_constant=spin/real_spin*self.spin_constant
+            self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
+            self.M2speedconst=(set_speed/real_speed)*self.M2speedconst #Because the constant is used in the calibration shot
+        else:
+            if spin!=0: self.spin_constant=(self._calculate_spin(speedM1,speedM2,set_speed,spin)/real_spin)*self.spin_constant
+            minspeedM1,minspeedM2=self._QPPS_to_speed(speedM1,speedM2)
+            self.M1speedconst=(minspeedM1/real_speed)*self.M1speedconst
+            self.M2speedconst=(minspeedM2/real_speed)*self.M2speedconst
+        return  self.M1speedconst, self.M2speedconst, self.spin_constant
+
+    def reset_calibration_constants(self):
+        self.M1speedconst=1.0
+        self.M2speedconst=1.0
+        self.spin_constant=1.0
+        return self.M1speedconst, self.M2speedconst, self.spin_constant
+
+    def manuell_shot(self,speed,angle,spin=0,dispenser_speed=120):
         print("Set_angle: ",angle)
         angle = self._angle_to_QP(angle)
         print("Target position M1:", angle)
-        t0 = Thread(target=self.rc.SpeedAccelDeccelPositionM1,args=(self.address[1],10,10,10,angle,0))
-        t0.start()
-        t0.join()
-        print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1])
 
+        self.rc.SpeedAccelDeccelPositionM1(self.address[1],10,20,10,angle,0)
+        self.has_angle_motor_stopped_moving() #sleep(5)
 
-        speedm2=int(self._speed_to_QPPS(speed,-spin)*self.M2speedconst)
-        speedm1=int(self._speed_to_QPPS(speed,spin)*self.M1speedconst)
-        self.rc.SpeedAccelM2(self.address[0],14000,int(speedm1))
-        self.rc.SpeedAccelM1(self.address[0],14000,int(speedm2))
+        speedm1,speedm2=self._speed_to_QPPS(speed,spin)
+        self.rc.SpeedAccelM1(self.address[0],84000,int(speedm1))
+        self.rc.SpeedAccelM2(self.address[0],84000,int(speedm2))
         self.rc.ForwardM2(self.address[1],dispenser_speed)
 
 
-    def manuell_shot_done(self):
-        self.rc.SpeedAccelM2(self.address[0],14000,0)
-        self.rc.SpeedAccelM1(self.address[0],14000,0)
+    def shot_done(self):
+        self.rc.SpeedAccelM2(self.address[0],84000,0)
+        self.rc.SpeedAccelM1(self.address[0],84000,0)
         self.rc.ForwardM2(self.address[1],0)
-
-        t0 = Thread(target=self.rc.SpeedAccelDeccelPositionM1,args=(self.address[1],10,10,10,0,0))
-        t0.start()
-        t0.join()
+        #Two ways to return to 0 degrees:
+        backward_speed = 126 #range: 0-126
+        self.rc.BackwardM1(self.address[1],backward_speed)
+        self.has_angle_motor_stopped_moving()
+        self.rc.BackwardM1(self.address[1],0)
+        self.rc.ResetEncoders(self.address[1])
+        #or: self.rc.SpeedAccelDeccelPositionM1(self.address[1],10,20,10,0,0) this may cause error sometimes.
 
     def landing_shot(self,target,dispenser_speed):
-        speed,angle,spin,tf= self.optim.find_initvalues_spin(target)
-        #self.optim.plot_path(speed,angle,spin)
-        print(f"Optim values for {target} is {speed,angle,spin}")
-        print("Set_angle: ",angle)
-        angle = self._angle_to_QP(angle)
-        print("Target position M1:", angle)
-        #self.rc.SpeedAccelDeccelPositionM1(self.address[1],10,10,10,angle,0)
-        t0 = Thread(target=self.rc.SpeedAccelDeccelPositionM1,args=(self.address[1],10,10,10,angle,0))
-        t0.start()
-        t0.join()
-        print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1])
-        sleep(7)
-        #spin er gitt i radianer per sekund
+        speed,rad_angle,spin,tf= self.optim.find_initvalues_spin(target)
+        #The path may be plotted: self.optim.plot_path(speed,rad_angle,spin)
+
+        degree_angle= rad_angle*180/np.pi
+        enc_angle = self._angle_to_QP(degree_angle)
+        print("Target position M1:", enc_angle)
         
-        speed=self._speed_to_QPPS(int(speed))       
-        speedM1=int((speed/(0.1*np.pi)-(spin/np.pi))*self.M2speedconst)
-        speedM2=int((speed/(0.1*np.pi)+(spin/np.pi))*self.M1speedconst)
+        self.rc.SpeedAccelDeccelPositionM1(self.address[1],10,20,10,enc_angle,0)
+        self.has_angle_motor_stopped_moving() 
 
-
-        self.rc.SpeedAccelM2(self.address[0],14000,speedM1)
-        self.rc.SpeedAccelM1(self.address[0],14000,speedM2)
+        if target[0]==0:spin=0
+        speedm1,speedm2=self._speed_to_QPPS(speed,spin)     
+        
+        self.rc.SpeedAccelM1(self.address[0],84000,speedm1)
+        self.rc.SpeedAccelM2(self.address[0],84000,speedm2)
         self.rc.ForwardM2(self.address[1],dispenser_speed)
-        return speed,angle,spin
+        return speed,degree_angle,spin,speedm1,speedm2
 
-    def test_spin(self,spin,speed):
-        speedM1=self._speed_to_QPPS(speed,-spin)   
-        speedM2=self._speed_to_QPPS(speed,spin)
-         
-        print(speedM1,speedM2)
+    def get_motor_constants(self):
+        return self.M1speedconst,self.M2speedconst,self.spin_constant
 
-fm = Footballmachine()
-fm.test_spin(0.018,27)
