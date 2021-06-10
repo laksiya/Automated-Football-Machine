@@ -5,6 +5,10 @@
 <body>
     <h1>Pro Trainer Soccer - Landingspunkt</h1>
     <h3>Y is the direction of machine</h3>
+    {% for key,value in form.items() %}
+    <h2> {{key}}</h2>
+    <p> {{value}}</p>
+    {% endfor %}
     <form action="/data" method = "POST">
         <p>Desired landingpoint[X,Y,Z]: <input type = "text" name = "target" /></p>
         <p>Ball dispenser speed (range 1-126): <input type = "text" name = "dispenser_speed" /></p>

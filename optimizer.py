@@ -92,8 +92,8 @@ class Optimizer:
         # Initial state
         U0 = MX.sym('U0',4)
         w = [U0]
-        lbw = [1,angle*np.pi/180,-spin,0]
-        ubw = [27,angle*np.pi/180,spin,np.inf]
+        lbw = [1,angle*np.pi/180,-abs(spin),0]
+        ubw = [27,angle*np.pi/180,abs(spin),np.inf]
         w0 = [setspeed,angle*np.pi/180,spin,tf]
 
         #How to define terminal constraints and Mayer costfunction?
