@@ -1,4 +1,4 @@
-import serial
+#import serial
 from flask import Flask, render_template, request, session, redirect, url_for
 from footballmachine import Footballmachine
 from time import sleep
@@ -33,7 +33,7 @@ def reset():
 def calib1():
     if request.method == 'GET':
         session.clear()
-        m1const,m2const,spinconst = fm.get_motor_constants()
+        m1const,m2const,spinconst = fm.get_calibration_constants()
         session["M1const"]=m1const
         session["M2const"]=m2const
         session["Spinconst"]=spinconst
@@ -42,7 +42,7 @@ def calib1():
 @app.route('/calib2', methods = ['POST', 'GET'])
 def calib2():
     if request.method == 'GET':
-         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
+         return f"The URL /calib2 is accessed directly. Try going to '/calib1' to calibrate."
 
     if request.method == 'POST': 
         if request.form['submit_button'] == 'Test shot':
@@ -77,7 +77,6 @@ def calib2():
                                 else: target_valid = 0
                             print("Target: ", target_list)
 
-
                         if (k=="dispenser_speed"): 
                             dispenser_valid=valid_dispenser_speed(int(request.form['dispenser_speed']))
                     
@@ -95,19 +94,18 @@ def calib2():
                 session["Target"]=request.form["target"]
                 session["Dispenser Speed"]=int(request.form["dispenser_speed"])
                 flag,speed,angle,spin,speedm1,speedm2=fm.calibrate_shot(target,int(request.form["dispenser_speed"]))
-                #Track lowest speed
-                #minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
-                # session["MinSpeedM1"]=minSpeedM1
-                # session["MinSpeedM2"]=minSpeedM2
-                sleep(10)
+                # sleep(10)
+                minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
+                session["MinSpeedM1"]=minSpeedM1
+                session["MinSpeedM2"]=minSpeedM2
                 fm.shot_done()
                 session["Speed"]=speed
                 session["Setspeed M1"]=speedm1
                 session["Setspeed M2"]=speedm2
                 session["Angle"]=angle
                 session["Spin"]=spin
-                m1const,m2const,spinconst = fm.get_motor_constants()
-                
+                #This return the "real constants"
+                m1const,m2const,spinconst = fm.get_calibration_constants()
                 session["Previous M1const"]=m1const
                 session["Previous M2const"]=m2const
                 session["Previous spinconst"]=spinconst
@@ -115,10 +113,12 @@ def calib2():
                 return render_template('calib2.html')
 
         if request.form['submit_button'] == 'Reset calibration constants':
+            session.clear()
             m1const,m2const, spinconst= fm.set_calibration_constants(1,1,1)
+            m1const,m2const, spinconst= fm.get_calibration_constants()
             session["M1const"]=m1const
             session["M2const"]=m2const
-            session["spinconst"]=spinconst
+            session["Spinconst"]=spinconst
             return render_template('calibrationdone.html',form=session)
                 
 @app.route('/calibrationdone', methods = ['POST', 'GET'])
@@ -182,13 +182,15 @@ def calibrationdone():
 def setcalib():
     if request.method == 'GET':
         session.clear()
-        m1const,m2const,spinconst = fm.get_motor_constants()
+        m1const,m2const,spinconst = fm.get_calibration_constants()
         session["M1const"]=m1const
         session["M2const"]=m2const
         session["Spinconst"]=spinconst
         return render_template('setcalib.html', form=session)
+
     if request.method == 'POST':
         if request.form['submit_button'] == 'Set calibration constants':
+                session.clear()
                 print(request.form['M1const'],request.form['M2const'],request.form['spinconst'])
                 m1const,m2const, spinconst= fm.set_calibration_constants(request.form['M1const'],request.form['M2const'],request.form['spinconst'])
                 print(m1const,m2const, spinconst)
@@ -201,7 +203,7 @@ def setcalib():
 def landing():
     if request.method == 'GET':
         session.clear()
-        m1const,m2const,spinconst = fm.get_motor_constants()
+        m1const,m2const,spinconst = fm.get_calibration_constants()
         session["M1const"]=m1const
         session["M2const"]=m2const
         session["Spinconst"]=spinconst
@@ -280,12 +282,15 @@ def data():
                 spin=float(request.form["spin"])
                 flag = fm.manuell_shot(speed,angle,spin,dispenser_speed)
                 if flag:
-                    sleep(10)
+                    # sleep(10)
+                    minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
+                    session["MinSpeedM1"]=minSpeedM1
+                    session["MinSpeedM2"]=minSpeedM2
                     fm.shot_done()
                     session["Speed"]=int(request.form["speed"])
                     session["Angle"]=int(request.form["angle"])
                     session["Dispenser Speed"]=int(request.form["dispenser_speed"])
-                    m1const,m2const,spinconst = fm.get_motor_constants()
+                    m1const,m2const,spinconst = fm.get_calibration_constants()
                     session["M1const"]=m1const
                     session["M2const"]=m2const
                     session["Spinconst"]=spinconst
@@ -344,11 +349,15 @@ def data():
                 session["Dispenser Speed"]=int(request.form["dispenser_speed"])
                 flag,speed,angle,spin,speedm1,speedm2=fm.landing_shot(target,int(request.form["dispenser_speed"]))
                 if flag:
-                    sleep(10)
+                    # sleep(10)
+                    minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
+                    session["MinSpeedM1"]=minSpeedM1
+                    session["MinSpeedM2"]=minSpeedM2
                     session["Speed"]=speed
                     session["Angle"]=angle
                     session["Spin"]=spin
-                    m1const,m2const,spinconst = fm.get_motor_constants()
+                    #This return the "real constants"
+                    m1const,m2const,spinconst = fm.get_calibration_constants()
                     session["M1const"]=m1const
                     session["M2const"]=m2const
                     session["Spinconst"]=spinconst
@@ -368,3 +377,6 @@ def valid_dispenser_speed(dispenser_speed):
     return (dispenser_speed>=1 and dispenser_speed<=126)
 def valid_spin(spin):
     return (spin>=-0.043 and spin<=0.043) #More spin can be allowed. 0.43 can land 0.25m on xaxis
+
+if __name__ == '__main__':
+   app.run()

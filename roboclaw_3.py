@@ -1078,7 +1078,7 @@ class Roboclaw:
 		try:
 			self._port = serial.Serial(port=self.comport, baudrate=self.rate, timeout=1, interCharTimeout=self.timeout)
 		except:
-			print("Ah man")
+			print("Could not open serial port (roboclaw.Open())")
 			return 0
 		return 1
 

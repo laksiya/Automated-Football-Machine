@@ -10,9 +10,9 @@ class Footballmachine:
         self.address = address
         self.rc = Roboclaw(port, baudrate)
         self.rc.Open()
-        self.spin_constant = 1.0
-        self.M1speedconst=1.0
-        self.M2speedconst=1.0
+        self.spin_constant = 1.02
+        self.M1speedconst=1.02
+        self.M2speedconst=1.02
         self.optim=Optimizer()
         self.radius = 0.1
         self.encoder_pulses_per_rad = 1024*(180/3.14)/360
@@ -41,7 +41,10 @@ class Footballmachine:
         self.rc.ResetEncoders(self.address[1])
         print("Angle encoder:", self.rc.ReadEncM1(self.address[1])[1]) 
 
-    def _speed_to_QPPS(self,speed,spin=0):
+    def _speed_to_QPPS(self,speed,spin=0,M1speedconst=0,M2speedconst=0):
+        if M1speedconst!=0: 
+            self.M1speedconst=M1speedconst
+            self.M2speedconst=M2speedconst
         radius = 0.1
         flag=1
         encoder_pulses_per_rad = 1024*(180/3.14)/360
@@ -103,6 +106,9 @@ class Footballmachine:
                 self.M2speedconst=(set_speed/real_speed)*self.M2speedconst #If the previous constant gives good results, keep it.
 
         return  self.M1speedconst, self.M2speedconst, self.spin_constant
+
+    def get_calibration_constants(self):
+        return self.M1speedconst,self.M2speedconst,self.spin_constant
 
     def set_calibration_constants(self,valM1,valM2,valspin):
         if valM1!="":self.M1speedconst=float(valM1)
@@ -183,8 +189,7 @@ class Footballmachine:
         return flag,speed,degree_angle,spin,speedm1,speedm2
 
 
-    def get_motor_constants(self):
-        return self.M1speedconst,self.M2speedconst,self.spin_constant
+
 
     def check_lowest_speeds(self,seconds):
             minspeedM1= np.Inf

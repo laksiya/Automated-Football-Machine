@@ -5,14 +5,11 @@
     <body>
     <h1>Pro Trainer Soccer - Calibration </h1>
     <h3>#1 Test Shot</h3>
-    <p>Select an angle and speed to calibrate(e.g. 10m/s and 45 degrees). Film and measure where the ball landed.</p>
+    <p>Select a target calibrate ex. 0,10,0. Film and measure where the ball landed.</p>
     <p>It is reccomended to start by calibrating the system with a straight shot with X=0. This will calibrate the speed calculation</p>
     <p>After the speed has been calibrated to >80% accuracy, spin calibration is enabled to calibrate spin for shots with X!=0 </p>
     <p>The calibration method will only calibrate for either speed constants or spin constant per calibration. </p>
-    {% for key,value in form.items() %}
-    <h2> {{key}}</h2>
-    <p> {{value}}</p>
-    {% endfor %}
+    
     <form action="/calib2" method = "POST">
         <p>Desired landingpoint[X,Y,Z]: <input type = "text" name = "target" /></p>
         <p>Ball dispenser speed (range 1-126): <input type = "text" name = "dispenser_speed" /></p>
@@ -21,9 +18,15 @@
         <p class="warning">{{ feedback }}</p>
         {% endif %}
         <p><input type = "submit" name= "submit_button" value = "Test shot" /></p>
-    <p><input class = "submit" type = "submit" name="submit_button" value = "Reset calibration constants" /></p>
+    {% for key,value in form.items() %}
+    <h3> {{key}}</h3>
+    <p> {{value}}</p>
+    {% endfor %}
+    <p><input class=button1 class = "submit" type = "submit" name="submit_button" value = "Reset calibration constants" /></p>
     </form>
-    <a href=./setcalib ><button >Set your own calibration constants</button></a>
-    <a href=./ ><button >Return</button></a>
+    
+    <a  href=./setcalib ><button class=button1>Set your own calibration constants</button></a>
+    <a  href=./ ><button class=button1>Return</button></a>
+
     </body>
 </html>

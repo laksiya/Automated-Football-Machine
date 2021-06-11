@@ -5,10 +5,7 @@
 <body>
     <h1>Pro Trainer Soccer - Landingspunkt</h1>
     <h3>Y is the direction of machine</h3>
-    {% for key,value in form.items() %}
-    <h2> {{key}}</h2>
-    <p> {{value}}</p>
-    {% endfor %}
+    
     <form action="/data" method = "POST">
         <p>Desired landingpoint[X,Y,Z]: <input type = "text" name = "target" /></p>
         <p>Ball dispenser speed (range 1-126): <input type = "text" name = "dispenser_speed" /></p>
@@ -19,11 +16,14 @@
         <p><input type = "submit" name= "submit_button" value = "Shoot landingball" /></p>
 
     </form>
-    
+    {% for key,value in form.items() %}
+    <h3> {{key}}</h3>
+    <p> {{value}}</p>
+    {% endfor %}
     <h3>Select another mode:</h3>
 
     <a href=manuell ><button class=button1 >Manuell Styring</button></a></a>
     <a href=calib1 ><button class=button1 >Calibrate</button></a>
-
+    <a href=./ ><button class=button1>Return</button></a>
     </body>
 </html>

@@ -66,7 +66,7 @@ class Optimizer:
         opts={
             "ipopt.acceptable_tol":1e-8,
             "ipopt.acceptable_obj_change_tol":1e-6,
-            "ipopt.print_level":1
+            "ipopt.print_level":3
         }
 
         solver = nlpsol('solver', 'ipopt', prob,opts)
@@ -79,7 +79,7 @@ class Optimizer:
         print("The optimal solution for speed, angle, spin, tf is:", solution)
         return float(sol_speed),float(sol_angle),float(sol_spin),float(sol_tf)
 
-    def calculate_real_speed(self,landingpoint, setspeed, angle, spin=0, tf=0):
+    def calculate_real_speed(self,landingpoint, setspeed, degree_angle, spin=0, tf=0):
         self.target=landingpoint
         print("Desired target: ", landingpoint)
 
@@ -92,9 +92,13 @@ class Optimizer:
         # Initial state
         U0 = MX.sym('U0',4)
         w = [U0]
-        lbw = [1,angle*np.pi/180,-abs(spin),0]
-        ubw = [27,angle*np.pi/180,abs(spin),np.inf]
-        w0 = [setspeed,angle*np.pi/180,spin,tf]
+        lbw = [1,degree_angle*np.pi/180,-abs(spin),0]
+        ubw = [27,degree_angle*np.pi/180,abs(spin),np.inf]
+        w0 = [setspeed,degree_angle*np.pi/180,0,2]
+
+        lbw = [1,5*np.pi/180,-1,0]
+        ubw = [27,45*np.pi/180,1,np.inf]
+        w0 = [10,45*np.pi/180,0,2]
 
         #How to define terminal constraints and Mayer costfunction?
         
@@ -118,7 +122,7 @@ class Optimizer:
         opts={
             "ipopt.acceptable_tol":1e-8,
             "ipopt.acceptable_obj_change_tol":1e-6,
-            "ipopt.print_level":1
+            "ipopt.print_level":3
         }
 
 
@@ -126,7 +130,7 @@ class Optimizer:
         sol = solver(x0=w0, lbx=lbw, ubx=ubw, lbg=lbg, ubg=ubg)
         sol_speed = sol['x'][0]
         sol_spin = sol['x'][2]
-        print("Machine was set to(setspeed, angle, spin, tf):", [setspeed, angle, spin, tf])
+        print("Machine was set to(setspeed, angle, spin, tf):", [setspeed, degree_angle, spin, tf])
         print("Real speed based on actual landingpoint and the given angle is:", float(sol_speed))
         return float(sol_speed), float(sol_spin)   
 
@@ -214,9 +218,9 @@ class Optimizer:
 
 # optim=Optimizer()
 # x=[0,15,0]
-# sol_speed,sol_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
-# print("ALTSÅ VERDIENE ER: ",sol_speed,sol_angle*180/np.pi,sol_spin)
+# sol_speed,sol_rad_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
+# print("ALTSÅ VERDIENE ER: ",sol_speed,sol_rad_angle*180/np.pi,sol_spin)
 # #optim.plot_path(10,45*np.pi/180,0.018)
-# landingpoint=[0,15,0]
-# speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_angle, sol_spin)
+# landingpoint=[0,17.52,0]
+# speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_rad_angle*180/np.pi, sol_spin)
 # print(sol_speed/speed)
