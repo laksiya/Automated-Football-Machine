@@ -213,10 +213,10 @@ class Optimizer:
         plt.show()
 
 # optim=Optimizer()
-# x=[-2,15,0]
-# # sol_speed,sol_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
-# # print("ALTSÅ VERDIENE ER: ",sol_speed,sol_angle*180/np.pi,sol_spin)
-# optim.plot_path(10,45*np.pi/180,0.018)
-# landingpoint=[0.8,14,0]
-# speed = optim.calculate_real_speed(landingpoint, sol_speed, sol_angle, sol_spin, sol_tf)
-# optim.plot_path(speed,sol_angle,sol_spin)
+# x=[0,15,0]
+# sol_speed,sol_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
+# print("ALTSÅ VERDIENE ER: ",sol_speed,sol_angle*180/np.pi,sol_spin)
+# #optim.plot_path(10,45*np.pi/180,0.018)
+# landingpoint=[0,15,0]
+# speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_angle, sol_spin)
+# print(sol_speed/speed)

@@ -18,7 +18,7 @@ class Footballmachine:
         self.encoder_pulses_per_rad = 1024*(180/3.14)/360
 
     def _has_angle_motor_stopped_moving(self):
-        interval = 0.5
+        interval = 1
         first = int(self.rc.ReadEncM1(self.address[1])[1])
         sleep(interval)
         second = int(self.rc.ReadEncM1(self.address[1])[1])
@@ -130,11 +130,12 @@ class Footballmachine:
         return flag
 
     def shot_done(self):
+        self.rc.ForwardM2(self.address[1],0)
         self.rc.SpeedAccelM2(self.address[0],84000,0)
         self.rc.SpeedAccelM1(self.address[0],84000,0)
         self.rc.ForwardM2(self.address[0],0)
         self.rc.ForwardM1(self.address[0],0)
-        self.rc.ForwardM2(self.address[1],0)
+        
 
     def landing_shot(self,target,dispenser_speed):
         speed,rad_angle,spin,tf= self.optim.find_initvalues_spin(target)
