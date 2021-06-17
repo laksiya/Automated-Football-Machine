@@ -42,7 +42,7 @@ def calib1():
 @app.route('/calib2', methods = ['POST', 'GET'])
 def calib2():
     if request.method == 'GET':
-         return f"The URL /calib2 is accessed directly. Try going to '/calib1' to calibrate."
+        return f"The URL /calib2 is accessed directly. Try going to '/calib1' to calibrate."
 
     if request.method == 'POST': 
         if request.form['submit_button'] == 'Test shot':
@@ -82,16 +82,16 @@ def calib2():
                     
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback,form=session)
             if not target_valid:
                 feedback = f"{request.form['target']} is not a valid target. Enter a positive target within 30m radius inf this format: X,Y,Z."
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback,form=session)
             if not dispenser_valid:
                 feedback = f"{request.form['dispenser_speed']} is not a valid dispenser speed. Enter a valid dispenserspeed within range 1-126 degrees"
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback, form=session)
             else:
                 target=target_list
-                session["Target"]=request.form["target"]
+                session["Target"]=target
                 session["Dispenser Speed"]=int(request.form["dispenser_speed"])
                 flag,speed,angle,spin,speedm1,speedm2=fm.calibrate_shot(target,int(request.form["dispenser_speed"]))
                 # sleep(10)
@@ -172,11 +172,31 @@ def calibrationdone():
                 m1const,m2const, spinconst=fm.calibrate_motor_constants(session["Target"],landingpoint,1,session["Speed"],session["Angle"],session["Spin"],session["Setspeed M1"],session["Setspeed M2"])
                 #To calibrate without real measurements (not recommended, consider future work): 
                 #m1const,m2const,spinconst =fm.calibrate_motor_constants(session["Target"],landingpoint,0,session["Speed"],session["Angle"],session["Spin"],session["MinSpeedM1"],session["MinSpeedM2"])
+                session["Landing point"]=landingpoint
                 session["M1const"]=m1const
                 session["M2const"]=m2const
                 session["Spinconst"]=spinconst
                 fm.set_calibration_constants(m1const,m2const,spinconst)
                 return render_template('calibrationdone.html',form=session)
+
+@app.route('/repeat')
+def repeat():
+    if request.method == 'GET':
+        flag,speed,angle,spin,speedm1,speedm2=fm.landing_shot(session["Target"],session["Dispenser Speed"])
+        # sleep(10)
+        minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
+        session["MinSpeedM1"]=minSpeedM1
+        session["MinSpeedM2"]=minSpeedM2
+        session["Speed"]=speed
+        session["Angle"]=angle
+        session["Spin"]=spin
+        #This return the "real constants"
+        m1const,m2const,spinconst = fm.get_calibration_constants()
+        session["M1const"]=m1const
+        session["M2const"]=m2const
+        session["Spinconst"]=spinconst
+        fm.shot_done()
+        return render_template('data.html',form= session)
 
 @app.route('/setcalib', methods = ['POST', 'GET'])
 def setcalib():
@@ -199,27 +219,28 @@ def setcalib():
                 session["spinconst"]=spinconst
                 return render_template('calibrationdone.html',form=session)
 
-@app.route('/landing')
-def landing():
+@app.route('/target')
+def target():
     if request.method == 'GET':
         session.clear()
         m1const,m2const,spinconst = fm.get_calibration_constants()
         session["M1const"]=m1const
         session["M2const"]=m2const
         session["Spinconst"]=spinconst
-        return render_template('landingspunkt.html', form=session)
+        return render_template('target.html', form=session)
         
-@app.route('/manuell')
-def manuell():
+        
+@app.route('/manual')
+def manual():
     if request.method == 'GET':
         session.clear()
-        return render_template('manuell.html')
+        return render_template('manual.html')
         
 
 @app.route('/data', methods = ['POST', 'GET'])
 def data():
     if request.method == 'GET':
-        return f"The URL /data is accessed directly. Try going to '/form' to submit form"
+        return f"The URL /data is accessed directly."
 
     if request.method == 'POST':
         
@@ -262,25 +283,25 @@ def data():
                             
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
-                return render_template('manuell.html',feedback=feedback)
+                return render_template('manual.html',feedback=feedback)
             if not speed_valid:
                 feedback = f"{request.form['speed']} is not a valid speed. Enter a valid speed within range 0-17 m/s"
-                return render_template('manuell.html',feedback=feedback)
+                return render_template('manual.html',feedback=feedback)
             if not angle_valid:
                 feedback = f"{request.form['angle']} is not a valid angle. Enter a valid angle within range 5-45 degrees"
-                return render_template('manuell.html',feedback=feedback)
+                return render_template('manual.html',feedback=feedback)
             if not dispenser_valid:
                 feedback = f"{request.form['dispenser_speed']} is not a valid dispenser speed. Enter a valid dispenserspeed within range 1-126 degrees"
-                return render_template('manuell.html',feedback=feedback)
+                return render_template('manual.html',feedback=feedback)
             if not spin_valid:
                 feedback = f"{request.form['spin']} is not a valid spin. Enter a valid dispenserspeed within range -0.018-0.018 degrees"
-                return render_template('manuell.html',feedback=feedback)
+                return render_template('manual.html',feedback=feedback)
             else:
                 speed=float(request.form["speed"])
                 angle=float(request.form["angle"])
                 dispenser_speed=int(request.form["dispenser_speed"])
                 spin=float(request.form["spin"])
-                flag = fm.manuell_shot(speed,angle,spin,dispenser_speed)
+                flag = fm.manual_shot(speed,angle,spin,dispenser_speed)
                 if flag:
                     # sleep(10)
                     minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)
@@ -296,8 +317,8 @@ def data():
                     session["Spinconst"]=spinconst
                 else:
                     fm.shot_done()
-                    feedback = f"{request.form['spin']} is a too high spin for the requested speed. Resulted in negative speeds. Try a lower spin or higher speed or lowering the spin constant manuelly."
-                    return render_template('manuell.html',feedback=feedback)
+                    feedback = f"{request.form['spin']} is a too high spin for the requested speed. Resulted in negative speeds. Try a lower spin or higher speed or lowering the spin constant manualy."
+                    return render_template('manual.html',feedback=feedback)
                 return render_template('data.html',form= session)
 
         if request.form['submit_button'] == 'Shoot landingball':
@@ -336,16 +357,16 @@ def data():
                     
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback,form=session)
             if not target_valid:
                 feedback = f"{request.form['target']} is not a valid target. Enter a positive target within 30m radius inf this format: X,Y,Z."
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback,form=session)
             if not dispenser_valid:
                 feedback = f"{request.form['dispenser_speed']} is not a valid dispenser speed. Enter a valid dispenserspeed within range 1-126 degrees"
-                return render_template('landingspunkt.html',feedback=feedback)
+                return render_template('target.html',feedback=feedback,form=session)
             else:
                 target=target_list
-                session["Target"]=request.form["target"]
+                session["Target"]=target
                 session["Dispenser Speed"]=int(request.form["dispenser_speed"])
                 flag,speed,angle,spin,speedm1,speedm2=fm.landing_shot(target,int(request.form["dispenser_speed"]))
                 if flag:
@@ -364,8 +385,8 @@ def data():
                     fm.shot_done()
                 else:
                     fm.shot_done()
-                    feedback = f"Selected landing point is out of range. Resulted in negative speeds. Try a lower spin or higher speed or lowering the spin constant manuelly."
-                    return render_template('landingspunkt.html',feedback=feedback)
+                    feedback = f"Selected landing point is out of range. Resulted in negative speeds. Try a lower spin or higher speed or lowering the spin constant manualy."
+                    return render_template('target.html',feedback=feedback)
                 return render_template('data.html',form= session)
 
 # Utilities

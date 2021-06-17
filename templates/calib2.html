@@ -8,7 +8,7 @@
     <p>Select an angle and speed to calibrate(e.g. 10m/s and 45 degrees). Film and measure where the ball landed.</p>
     <p>How far did the ball travel?</p>
     <form action="/calibrationdone" method = "POST">
-    <p>Landingpoint[X,Y,Z]: <input type = "text" name = "landingpoint" /></p>
+    <p>Landing point[X,Y,Z]: <input type = "text" name = "landingpoint" /></p>
     {% if feedback %}
     <p class="warning">{{ feedback }}</p>
     {% endif %}

@@ -82,23 +82,24 @@ class Footballmachine:
         
     def calibrate_motor_constants(self,target,landingpoint,flag,set_speed,set_angle,spin=0,speedM1=0,speedM2=0, tf=0):
         real_speed, real_spin = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
+        real_spin=round(real_spin,4)
         print(f"(calculated by optim) real_speed {real_speed}, real_spin{real_spin} ")
         if flag:
-            print(f"Target was {target}")
-            print(f"Landingpoint was {landingpoint}")
+            print(f"Target[0] was {target[0]}")
+            print(f"Landingpoint was {landingpoint[0]}")
 
             #We wanted spin but we didnt get it at all(X=0, real_spin=0)
-            if target[0]!='0' and landingpoint[0]==0 and set_speed/real_speed>=0.8 :
+            if target[0]!=0 and landingpoint[0]==0 and set_speed/real_speed>=0.8 :
                 self.spin_constant=2*self.spin_constant
 
             #We didnt want spin but we got it? spin=0 real_spin!=0 - this is out of scope
-            elif target[0]=='0' and real_spin!=0: 
+            elif target[0]==0 and real_spin!=0: 
                 #Do not handle this spin issue
                 self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
                 self.M2speedconst=(set_speed/real_speed)*self.M2speedconst 
 
             #We wanted spin but we didnt get enough(real_spin!=0)
-            elif set_speed/real_speed>=0.8 and real_spin!=0: 
+            elif target[0]!=0 and set_speed/real_speed>=0.8 and real_spin!=0: 
                 self.spin_constant=(spin*1000)/(real_spin*1000)*self.spin_constant
                 
             else:

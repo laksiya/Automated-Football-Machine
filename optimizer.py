@@ -210,9 +210,12 @@ class Optimizer:
         path = self.aboveground(y_s[:,0:3])
         fig = plt.figure()
         ax = fig.gca(projection='3d')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
         if abs(spin)<=0.01: 
             ax.set_xlim([-1,1])
-        ax.plot(path[:,0], path[:,1], path[:,2], label='parametric curve')
+        ax.plot(path[:,0], path[:,1], path[:,2], label=[round(i,2) for i in path[-1]])
         ax.legend()
         plt.show()
 
