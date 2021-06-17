@@ -96,10 +96,6 @@ class Optimizer:
         ubw = [27,degree_angle*np.pi/180,abs(spin),np.inf]
         w0 = [setspeed,degree_angle*np.pi/180,0,2]
 
-        lbw = [1,5*np.pi/180,-1,0]
-        ubw = [27,45*np.pi/180,1,np.inf]
-        w0 = [10,45*np.pi/180,0,2]
-
         #How to define terminal constraints and Mayer costfunction?
         
         dx_0=U0[0]*np.cos(U0[1])*np.sin(self.theta)
@@ -219,11 +215,12 @@ class Optimizer:
         ax.legend()
         plt.show()
 
-# optim=Optimizer()
-# x=[0,15,0]
-# sol_speed,sol_rad_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
-# print("ALTSÅ VERDIENE ER: ",sol_speed,sol_rad_angle*180/np.pi,sol_spin)
-# #optim.plot_path(10,45*np.pi/180,0.018)
-# landingpoint=[0,17.52,0]
-# speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_rad_angle*180/np.pi, sol_spin)
-# print(sol_speed/speed)
+optim=Optimizer()
+x=[0,15,0]
+sol_speed,sol_rad_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
+print("ALTSÅ VERDIENE ER: ",sol_speed,sol_rad_angle*180/np.pi,sol_spin)
+#optim.plot_path(10,45*np.pi/180,0.018)
+landingpoint=[0,17.52,0]
+speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_rad_angle*180/np.pi, sol_spin)
+optim.plot_path(speed,sol_rad_angle,spin)
+print(sol_speed/speed)

@@ -82,13 +82,13 @@ def calib2():
                     
             if missing_values:
                 feedback = f"Missing fields for {', '.join(missing_values)}"
-                return render_template('target.html',feedback=feedback,form=session)
+                return render_template('calib1.html',feedback=feedback,form=session)
             if not target_valid:
                 feedback = f"{request.form['target']} is not a valid target. Enter a positive target within 30m radius inf this format: X,Y,Z."
-                return render_template('target.html',feedback=feedback,form=session)
+                return render_template('calib1.html',feedback=feedback,form=session)
             if not dispenser_valid:
                 feedback = f"{request.form['dispenser_speed']} is not a valid dispenser speed. Enter a valid dispenserspeed within range 1-126 degrees"
-                return render_template('target.html',feedback=feedback, form=session)
+                return render_template('calib1.html',feedback=feedback, form=session)
             else:
                 target=target_list
                 session["Target"]=target
