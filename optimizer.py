@@ -215,12 +215,12 @@ class Optimizer:
         ax.legend()
         plt.show()
 
-optim=Optimizer()
-x=[0,15,0]
-sol_speed,sol_rad_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
-print("ALTSÅ VERDIENE ER: ",sol_speed,sol_rad_angle*180/np.pi,sol_spin)
-#optim.plot_path(10,45*np.pi/180,0.018)
-landingpoint=[0,17.52,0]
-speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_rad_angle*180/np.pi, sol_spin)
-optim.plot_path(speed,sol_rad_angle,spin)
-print(sol_speed/speed)
+# optim=Optimizer()
+# x=[0,15,0]
+# sol_speed,sol_rad_angle,sol_spin,sol_tf=optim.find_initvalues_spin(x)
+# print("ALTSÅ VERDIENE ER: ",sol_speed,sol_rad_angle*180/np.pi,sol_spin)
+# #optim.plot_path(10,45*np.pi/180,0.018)
+# landingpoint=[0,17.52,0]
+# speed,spin = optim.calculate_real_speed(landingpoint, sol_speed, sol_rad_angle*180/np.pi, sol_spin)
+# optim.plot_path(speed,sol_rad_angle,spin)
+# print(sol_speed/speed)
