@@ -105,7 +105,12 @@ class Footballmachine:
             else:
                 self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
                 self.M2speedconst=(set_speed/real_speed)*self.M2speedconst #If the previous constant gives good results, keep it.
-
+         #else:
+            #This measurement based calibration needs improvment to work, but the other solution works fine.
+            #if spin!=0: self.spin_constant=(self._calculate_spin(speedM1,speedM2,set_speed,spin)/real_spin)*self.spin_constant
+            #minspeedM1,minspeedM2=self._QPPS_to_speed(speedM1,speedM2)
+            #self.M1speedconst=(minspeedM1/real_speed)*self.M1speedconst
+            #self.M2speedconst=(minspeedM2/real_speed)*self.M2speedconst         
         return  self.M1speedconst, self.M2speedconst, self.spin_constant
 
     def get_calibration_constants(self):
