@@ -169,7 +169,7 @@ def calibrationdone():
             else:
                 landingpoint=target_list
                 #To calibrate without real measurements: 
-                m1const,m2const, spinconst=fm.calibrate_motor_constants(session["Target"],landingpoint,1,session["Speed"],session["Angle"],session["Spin"],session["Setspeed M1"],session["Setspeed M2"])
+                m1const,m2const, spinconst=fm.calibrate_motor_constants(session["Target"],landingpoint,session["Speed"],session["Angle"],session["Spin"])
                 #To calibrate without real measurements (not recommended, consider future work): 
                 #m1const,m2const,spinconst =fm.calibrate_motor_constants(session["Target"],landingpoint,0,session["Speed"],session["Angle"],session["Spin"],session["MinSpeedM1"],session["MinSpeedM2"])
                 session["Landing point"]=landingpoint
