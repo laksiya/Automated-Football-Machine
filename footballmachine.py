@@ -191,7 +191,7 @@ class Footballmachine:
         #print(lowest_spin)
         #return lowest_spin
     
-        def calibrate_motor_constants(self,target,landingpoint,set_speed,set_angle,spin=0,speedM1=0,speedM2=0, tf=0):
+        def calibrate_motor_constants(self,target,landingpoint,set_speed,set_angle,spin=0, tf=0):
         real_speed, real_spin = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
         real_spin=round(real_spin,4)
         print(f"(calculated by optim) real_speed {real_speed}, real_spin{real_spin} ")
