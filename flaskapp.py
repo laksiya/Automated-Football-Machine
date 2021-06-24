@@ -169,7 +169,7 @@ def calibrationdone():
             else:
                 landingpoint=target_list
                 #To calibrate without real measurements: 
-                m1const,m2const, spinconst=fm.calibrate_motor_constants(session["Target"],landingpoint,1,session["Speed"],session["Angle"],session["Spin"],session["Setspeed M1"],session["Setspeed M2"])
+                m1const,m2const, spinconst=fm.calibrate_motor_constants(session["Target"],landingpoint,session["Speed"],session["Angle"],session["Spin"])
                 #To calibrate without real measurements (not recommended, consider future work): 
                 #m1const,m2const,spinconst =fm.calibrate_motor_constants(session["Target"],landingpoint,0,session["Speed"],session["Angle"],session["Spin"],session["MinSpeedM1"],session["MinSpeedM2"])
                 session["Landing point"]=landingpoint
@@ -301,7 +301,7 @@ def data():
                 angle=float(request.form["angle"])
                 dispenser_speed=int(request.form["dispenser_speed"])
                 spin=float(request.form["spin"])
-                flag = fm.manual_shot(speed,angle,spin,dispenser_speed)
+                flag = fm.manuell_shot(speed,angle,spin,dispenser_speed)
                 if flag:
                     # sleep(10)
                     minSpeedM1,minSpeedM2 = fm.check_lowest_speeds(10)

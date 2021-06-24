@@ -80,34 +80,6 @@ class Footballmachine:
         angle = int((a1 *a2)/a3 + range_min)
         return angle
         
-    def calibrate_motor_constants(self,target,landingpoint,flag,set_speed,set_angle,spin=0,speedM1=0,speedM2=0, tf=0):
-        real_speed, real_spin = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
-        real_spin=round(real_spin,4)
-        print(f"(calculated by optim) real_speed {real_speed}, real_spin{real_spin} ")
-        if flag:
-            print(f"Target[0] was {target[0]}")
-            print(f"Landingpoint was {landingpoint[0]}")
-
-            #We wanted spin but we didnt get it at all(X=0, real_spin=0)
-            if target[0]!=0 and landingpoint[0]==0 and set_speed/real_speed>=0.8 :
-                self.spin_constant=2*self.spin_constant
-
-            #We didnt want spin but we got it? spin=0 real_spin!=0 - this is out of scope
-            elif target[0]==0 and real_spin!=0: 
-                #Do not handle this spin issue
-                self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
-                self.M2speedconst=(set_speed/real_speed)*self.M2speedconst 
-
-            #We wanted spin but we didnt get enough(real_spin!=0)
-            elif target[0]!=0 and set_speed/real_speed>=0.8 and real_spin!=0: 
-                self.spin_constant=(spin*1000)/(real_spin*1000)*self.spin_constant
-                
-            else:
-                self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
-                self.M2speedconst=(set_speed/real_speed)*self.M2speedconst #If the previous constant gives good results, keep it.
-
-        return  self.M1speedconst, self.M2speedconst, self.spin_constant
-
     def get_calibration_constants(self):
         return self.M1speedconst,self.M2speedconst,self.spin_constant
 
@@ -189,9 +161,6 @@ class Footballmachine:
 
         return flag,speed,degree_angle,spin,speedm1,speedm2
 
-
-
-
     def check_lowest_speeds(self,seconds):
             minspeedM1= np.Inf
             minspeedM2= np.Inf
@@ -205,12 +174,51 @@ class Footballmachine:
                     if speed2[1]<minspeedM2: minspeedM2= speed2[1]
                 sleep(0.1)
             return minspeedM1,minspeedM2
+    
+    #def _QPPS_to_speed(self,QPPS1,QPPS2):
+    # To use measurment based calibration: Uncomment this function and update this function based on _speed_to_QPPS()
+     #   speed1 = QPPS1/(4000*self.M1speedconst)*(0.1*2*np.pi)
+      #  speed2 = QPPS2/(4000*self.M2speedconst)*(0.1*2*np.pi)
+       # return speed1,speed2
+    
+   # def _calculate_spin(self,QPPS1,QPPS2,speed):
+     #   To use measurment based calibration: Uncomment this function
+    #    print(QPPS1,QPPS2)
+     #   angular_speed1=QPPS1/self.encoder_pulses_per_rad
+      #  angular_speed2=QPPS2/self.encoder_pulses_per_rad
+       # print(angular_speed1,angular_speed2)
+       # lowest_spin=((angular_speed2-speed/self.radius*3.25*self.M1speedconst)-(angular_speed1-speed/self.radius*3.25*self.M2speedconst))/(2*1000*self.spin_constant)
+        #print(lowest_spin)
+        #return lowest_spin
+    
+    def calibrate_motor_constants(self,target,landingpoint,set_speed,set_angle,spin=0, tf=0):
+        real_speed, real_spin = self.optim.calculate_real_speed(landingpoint, set_speed, set_angle, spin, tf)
+        real_spin=round(real_spin,4)
+        print(f"(calculated by optim) real_speed {real_speed}, real_spin{real_spin} ")
+        print(f"Target[0] was {target[0]}")
+        print(f"Landingpoint was {landingpoint[0]}")
 
-    def _calculate_spin(self,QPPS1,QPPS2,speed):
-        print(QPPS1,QPPS2)
-        angular_speed1=QPPS1/self.encoder_pulses_per_rad
-        angular_speed2=QPPS2/self.encoder_pulses_per_rad
-        print(angular_speed1,angular_speed2)
-        lowest_spin=((angular_speed2-speed/self.radius*3.25*self.M1speedconst)-(angular_speed1-speed/self.radius*3.25*self.M2speedconst))/(2*1000*self.spin_constant)
-        print(lowest_spin)
-        return lowest_spin
+        #We wanted spin but we didnt get it at all(X=0, real_spin=0)
+        if target[0]!=0 and landingpoint[0]==0 and set_speed/real_speed>=0.8 :
+            self.spin_constant=2*self.spin_constant
+
+        #We didnt want spin but we got it? spin=0 real_spin!=0 - this is out of scope
+        elif target[0]==0 and real_spin!=0: 
+            #Do not handle this spin issue
+            self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
+            self.M2speedconst=(set_speed/real_speed)*self.M2speedconst 
+
+        #We wanted spin but we didnt get enough(real_spin!=0)
+        elif target[0]!=0 and set_speed/real_speed>=0.8 and real_spin!=0: 
+            self.spin_constant=(spin*1000)/(real_spin*1000)*self.spin_constant
+
+        else:
+            self.M1speedconst=(set_speed/real_speed)*self.M1speedconst
+            self.M2speedconst=(set_speed/real_speed)*self.M2speedconst #If the previous constant gives good results, keep it.
+            
+        #This measurement based calibration does not work but is left here along with support functions in case it may be used in future work.
+        #if spin!=0: self.spin_constant=(self._calculate_spin(speedM1,speedM2,set_speed,spin)/real_spin)*self.spin_constant
+        #minspeedM1,minspeedM2=self._QPPS_to_speed(speedM1,speedM2)
+        #self.M1speedconst=(minspeedM1/real_speed)*self.M1speedconst
+        #self.M2speedconst=(minspeedM2/real_speed)*self.M2speedconst         
+        return  self.M1speedconst, self.M2speedconst, self.spin_constant

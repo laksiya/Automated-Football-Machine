@@ -1,0 +1,8 @@
+# Automatisation of a Pro Soccer Trainer football machine
+This project is an extension of Alvestrand(2014) and Iversen et al.(2015) at NTNU. The objective of these reports have been to automate the use of a manual ball machine used in football(soccer) practice by finding the machine's optimal initial conditions to land on a desired point with and without side-spin. This includes automatically setting the optimal speed and pitch angle of the machine. The goal of this project is to improve the system architecture of the current machine and add extra functionality to machine with focus on increased automatisation as well as introduction of new degrees of freedom and spin types for the ball shot.
+
+##Start up
+Connect the machine to 12V battery and power up the Raspberry Pi. Ensure all cable connections are wired properly. When RPi is powered up the system should be accessably remotely by entering the eduroam network through the username and password and IP address given in the report. If you wish to use the system through the RPi as a Computer, access localhost. If you wish to run the software seperate from the Apache Web Server, run it locally on RPi with the command "python flaskapp.py" in folder \var\www\html\flaskapp. If you wish to refresh the server with new edits to the code, use command "sudo service apache2 restart". If you wish to see the servers terminal outputs, use command "tail -f \var\log\apache2\error.log". 
+
+##Requirements
+System uses flask, casadi, roboclaw_3, pyserial and matplotlib. Version is given in requirements.txt.
