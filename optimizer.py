@@ -198,7 +198,7 @@ class Optimizer:
         y_0 = [0,0.1,0.1,dx_0,dy_0,dz_0,x[0],x[2]]
         return y_0
 
-    def plot_path(self,speed,angle,spin):
+    def plot_path_3D(self,speed,angle,spin):
         x=[speed,angle,spin]
         y_0 = self.find_y0(x)
         print(y_0)
@@ -211,7 +211,27 @@ class Optimizer:
         ax.set_zlabel('Z [m]')
         if abs(spin)<=0.01: 
             ax.set_xlim([-1,1])
-        ax.plot(path[:,0], path[:,1], path[:,2], label=[round(i,2) for i in path[-1]])
+        # ax.plot(path[:,0], path[:,1], path[:,2], label=[round(i,2) for i in path[-1]])
+        # plt.plot([path[-1,0]], [path[-1,1]], [path[-1,2]], 'ro')
+        # plt.plot([path[0,0]], [path[0,1]], [path[0,2]], 'go')
+        
+        ax.legend()
+        plt.show()
+
+    def plot_path_2D(self,speed,angle,spin):
+        x=[speed,angle,spin]
+        y_0 = self.find_y0(x)
+        print(y_0)
+        _,y_s=self.Simulate_ballpath(y_0)
+        path = self.aboveground(y_s[:,0:3])
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.set_xlabel('Y [m]')
+        ax.set_ylabel('Z [m]')
+        ax.plot(path[:,1], path[:,2], label=[round(i,2) for i in path[-1]])
+        plt.plot([path[-1,1]], [path[-1,2]], 'ro')
+        plt.plot([path[0,1]], [path[0,2]], 'go')
+        plt.grid()
         ax.legend()
         plt.show()
 
